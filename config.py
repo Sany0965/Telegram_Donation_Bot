@@ -1,9 +1,9 @@
-
-TOKEN = "СЮДА ТОКЕН ОТ БОТА"
-CRYPTOBOT_API_TOKEN = "СЮДА ТОКЕН ОТ КРИПТОБОТ ПРИЛОЖЕНИЯ"
-YOOMONEY_TOKEN = "СЮДА ТОКЕН ЮМАНИ"
-YOOMONEY_RECEIVER = "СЮДА НОМЕР КОШЕЛЬКА ЮМАНИ"
-TELEGRAM_PAYMENT_PROVIDER_TOKEN = "YOUR_TELEGRAM_PAYMENT_PROVIDER_TOKEN"
-CHANNEL_LINK = "@username канала куда будут публиковаться имена донатеров"
-MIN_DONATION = 10 #это минимальная сумма, меньше 10₽ не делать!
+TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+CRYPTOBOT_API_TOKEN = "YOUR_CRYPTOBOT_API_TOKEN"
+YOOMONEY_TOKEN = "YOUR_YOOMONEY_TOKEN"
+YOOMONEY_RECEIVER = "YOUR_YOOMONEY_RECEIVER"
+TELEGRAM_PAYMENT_PROVIDER_TOKEN = "YOUR_TELEGRAM_PAYMENT_PROVIDER_TOKEN" #тут нечего менять не нужно!!!!!
+CHANNEL_LINK = "@your_channel_link"
+MIN_DONATION = 10  # Минимальная сумма доната
 CONVERSION_API_URL = "https://api.exchangerate-api.com/v4/latest/RUB"
+BOT_LINK = "https://t.me/your_bot" #ссылка на бота

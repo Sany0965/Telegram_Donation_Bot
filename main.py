@@ -5,6 +5,7 @@ from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton, LabeledPri
 from config import TOKEN, TELEGRAM_PAYMENT_PROVIDER_TOKEN, MIN_DONATION
 from payment import get_cryptobot_pay_link, check_cryptobot_payment_status, get_yoomoney_pay_link, check_yoomoney_payment_status
 from publication import complete_donation
+from admin import register_admin_handler
 
 bot = telebot.TeleBot(TOKEN)
 pending_cryptobot = {}
@@ -12,10 +13,10 @@ pending_yoomoney = {}
 
 @bot.message_handler(commands=["start"])
 def start(message):
-    username = message.from_user.first_name
+    name = message.from_user.first_name
     bot.send_message(
         message.chat.id,
-        f"Приветствую, {username}! 😊\nВы здесь, чтобы помочь развитию нашего канала!\n\nВведите сумму для доната (минимум {MIN_DONATION}₽):"
+        f"Приветствую, {name}! 😊\nВы здесь, чтобы помочь развитию нашего канала!\n\nВведите сумму для доната (минимум {MIN_DONATION}₽):"
     )
 
 @bot.message_handler(func=lambda m: m.text and m.text.isdigit())
@@ -39,7 +40,8 @@ def handle_donation_amount(message):
 @bot.callback_query_handler(func=lambda call: call.data.startswith("donate_"))
 def process_donation_method(call):
     chat_id = call.message.chat.id
-    username = call.from_user.first_name
+    full_name = call.from_user.first_name
+    user_username = call.from_user.username if call.from_user.username else "—"
     data = call.data.split("_")
     method = data[1]
     try:
@@ -53,7 +55,8 @@ def process_donation_method(call):
             pending_cryptobot[invoice_id] = {
                 "chat_id": chat_id,
                 "amount": amount,
-                "username": username,
+                "full_name": full_name,
+                "username": user_username,
                 "method": "Cryptobot",
                 "message_id": call.message.message_id
             }
@@ -67,7 +70,8 @@ def process_donation_method(call):
         pending_yoomoney[label] = {
             "chat_id": chat_id,
             "amount": amount,
-            "username": username,
+            "full_name": full_name,
+            "username": user_username,
             "method": "YooMoney",
             "message_id": call.message.message_id
         }
@@ -75,7 +79,6 @@ def process_donation_method(call):
         markup.add(InlineKeyboardButton("🔗 Оплатить YooMoney", url=pay_url))
         bot.edit_message_reply_markup(chat_id, call.message.message_id, reply_markup=markup)
     elif method == "stars":
-        
         prices = [LabeledPrice(label="⭐ Донат", amount=amount)]
         bot.send_invoice(
             chat_id=chat_id,
@@ -96,15 +99,16 @@ def pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
 @bot.message_handler(content_types=['successful_payment'])
 def handle_successful_payment(message):
     amount = message.successful_payment.total_amount / 100
+    full_name = message.from_user.first_name
+    user_username = message.from_user.username if message.from_user.username else "—"
     donation = {
         "chat_id": message.chat.id,
         "amount": int(amount),
-        "username": message.from_user.first_name,
+        "full_name": full_name,
+        "username": user_username,
         "method": "Telegram Stars"
-        
     }
     complete_donation(bot, donation)
-
 
 def periodic_check():
     remove_crypto = []
@@ -123,8 +127,9 @@ def periodic_check():
             remove_yoomoney.append(label)
     for label in remove_yoomoney:
         del pending_yoomoney[label]
-    threading.Timer(10, periodic_check).start()
+    threading.Timer(5, periodic_check).start()
 
 if __name__ == "__main__":
+    register_admin_handler(bot)
     periodic_check()
     bot.polling(none_stop=True)
