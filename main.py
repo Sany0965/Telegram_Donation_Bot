@@ -97,15 +97,15 @@ def pre_checkout_query(pre_checkout_query: PreCheckoutQuery):
     bot.answer_pre_checkout_query(pre_checkout_query.id, ok=True)
 
 @bot.message_handler(content_types=['successful_payment'])
+@bot.message_handler(content_types=['successful_payment'])
 def handle_successful_payment(message):
-    amount = message.successful_payment.total_amount / 100
-    full_name = message.from_user.first_name
-    user_username = message.from_user.username if message.from_user.username else "—"
+    
+    amount = message.successful_payment.total_amount  
     donation = {
         "chat_id": message.chat.id,
-        "amount": int(amount),
-        "full_name": full_name,
-        "username": user_username,
+        "amount": amount,  
+        "full_name": message.from_user.first_name,
+        "username": message.from_user.username or "—",
         "method": "Telegram Stars"
     }
     complete_donation(bot, donation)

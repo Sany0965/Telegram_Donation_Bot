@@ -26,14 +26,21 @@ def complete_donation(bot, donation):
     chat_id = donation["chat_id"]
     amount = escape_markdown(donation["amount"])
     method = escape_markdown(donation["method"])
+    
+    # Определяем отображаемую валюту
+    currency = "⭐" if method == "Telegram Stars" else "₽"
+    amount_display = f"{amount}{currency}"
+    
     username = escape_markdown(donation["username"])
     thank_you_message = escape_markdown(random.choice(THANK_YOU_PHRASES))
+    
     if BOT_LINK.startswith("@"):
         bot_url = f"https://t.me/{BOT_LINK[1:]}"
     else:
         bot_url = BOT_LINK
+
     channel_msg = fr"""
-🎉 *{username}* внесла пожертвование в размере *{amount}₽*
+🎉 *{username}* внесла пожертвование в размере *{amount_display}*
 🔸 *Метод:* _{method}_
 
 {thank_you_message}
@@ -41,30 +48,35 @@ def complete_donation(bot, donation):
 🚀 Разработано [worpli](https://t.me/worpli)
 💸 [Закинуть донат]({bot_url}) 👇
     """.strip()
+
     channel_message = bot.send_message(
         CHANNEL_LINK,
         channel_msg,
         parse_mode='MarkdownV2',
         disable_web_page_preview=True
     )
+    
     if CHANNEL_LINK.startswith("@"):
         message_link = f"https://t.me/{CHANNEL_LINK[1:]}/{channel_message.message_id}"
     else:
         message_link = f"{CHANNEL_LINK}/{channel_message.message_id}"
+    
     markup = InlineKeyboardMarkup()
     markup.row(
         InlineKeyboardButton("🌐 Посмотреть донат", url=message_link),
         InlineKeyboardButton("💸 Новый донат", url=bot_url)
     )
+    
     user_msg = fr"""
 ✅ *Платеж успешно завершен\!*
 
-▫️ *Сумма:* {amount}₽
+▫️ *Сумма:* {amount}{currency}
 ▫️ *Метод оплаты:* {method}
 
 ✨ Ваша поддержка помогает нам развиваться\! 
 🔄 Вы можете проверить статус или сделать новый донат:
     """.strip()
+
     if "message_id" in donation:
         bot.edit_message_text(
             text=user_msg,
@@ -80,9 +92,11 @@ def complete_donation(bot, donation):
             reply_markup=markup,
             parse_mode='MarkdownV2'
         )
+    
     full_name = donation.get("full_name", "").strip()
     if not full_name:
         full_name = "Не указано"
+    
     donation_record = {
         "full_name": full_name,
         "username": donation.get("username", "—").strip(),

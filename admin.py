@@ -4,7 +4,7 @@ from fpdf import FPDF
 import database
 from datetime import datetime
 
-ADMIN_ID = сюда свой id тг
+ADMIN_ID = здесь id админа для получения pdf с данными
 FONT_PATH = os.path.join(os.path.dirname(__file__), "DejaVuSans.ttf")
 
 def safe_text(text):
